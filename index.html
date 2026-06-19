@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>English Practice Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef6ff;
+            padding: 5px;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 15px;
+            max-width: 600px;
+            box-shadow: 0 0 10px rgba(0,0,0,.15);
+            display: none;
+        }
+        #p2 {
+    margin-top: 10px;
+    padding-top: 0px;
+}
+        .active { display: block; }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .correct { background: lightgreen; }
+        .wrong { background: orange; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; }
+        .verbsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+        img { width: 80px; }
+        input {
+            width: 100px;
+            text-align: center;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        .longAnswer {
+    width: 90%;
+    max-width: 500px;
+    text-align: left;
+    padding: 5px;
+}
+    </style>
+</head>
+<body>
+
+    <h1>🎉 English Practice Game 🎉</h1>
+    <div id="p0" class="card active">
+        <h2>📝 Activity 1: Past Tense</h2>
+        <div id="verbsDiv"></div>
+        <button onclick="checkVerbs()">Check Answers</button>
+        <button onclick="show(1)">Next</button>
+    </div>
+
+    <div id="p1" class="card">
+        <h2>📖 Activity 2: Sequencing (A Day at the Beach)</h2>
+        <div id="seqDiv"></div>
+        <button onclick="checkSequencing()">Check Answers</button>
+        <button onclick="show(2)">Next</button>
+    </div>
+
+    <div id="p2" class="card">
+        <h2>👕 Activity 3: Clothes</h2>
+        <div id="clothDiv" class="grid"></div>
+        <button onclick="checkClothes()">Check Answers</button>
+        <button onclick="show(3)">Next</button>
+    </div>
+
+    <div id="p3" class="card">
+        <h2>⚽ Activity 4: Activities</h2>
+        <div id="actDiv" class="grid"></div>
+        <button onclick="checkActivities()">Check Answers</button>
+        <button onclick="show(4)">Next</button>
+    </div>
+
+    <div id="p4" class="card">
+        <h2>💬 Activity 5: Questions</h2>
+        <div id="qDiv" style="text-align: left;">
+            <p>1. Do you like to play soccer?<br>
+<input class="longAnswer" autocomplete="off" spellcheck="false">
+</p>
+            <p>2. What's your favorite indoor activity?<br><input class="longAnswer" autocomplete="off" spellcheck="false">
+</p>
+            <p>3. What's your favorite outdoor activity?<br><input class="longAnswer" autocomplete="off" spellcheck="false">
+</p>
+            <p>4. Do you like to ride a bike?<br><input class="longAnswer" autocomplete="off" spellcheck="false">
+</p>
+        </div>
+<button onclick="checkQuestions()">Check Answers</button>
+<button onclick="show(5)">Finish</button>
+    </div>
+
+    <div id="p5" class="card">
+        <h2>🏆 Results</h2>
+        <h3>🎉 Excellent! You are ready for your test!</h3>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+
+    <script>
+        function show(n) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById('p' + n).classList.add('active');
+        }
+
+        function normalizeText(text) {
+            return text.toLowerCase().trim().replace(/[^a-z]/g, '');
+        }
+
+        // Activity 1
+        const verbs = [
+            ["play", "played"],
+            ["swim", "swam"],
+            ["climb", "climbed"],
+            ["walk", "walked"],
+            ["work", "worked"],
+            ["fish", "fished"],
+            ["eat", "ate"],
+            ["drink", "drank"],
+            ["visit", "visited"],
+            ["travel", "traveled"]
+        ];
+
+        verbs.sort(() => Math.random() - 0.5);
+
+let hV = '<div class="verbsGrid">';
+
+verbs.forEach((v, i) => {
+    hV += `
+        <div>
+            ${i + 1}. ${v[0]}<br>
+            <input id="v${i}" autocomplete="off" spellcheck="false">
+        </div>
+    `;
+});
+
+hV += '</div>';
+
+document.getElementById("verbsDiv").innerHTML = hV;
+
+        function checkVerbs() {
+            verbs.forEach((v, i) => {
+                let b = document.getElementById('v' + i);
+                b.className = (normalizeText(b.value) === normalizeText(v[1])) ? 'correct' : 'wrong';
+            });
+        }
+
+        // Activity 2
+        const story = [
+            { sentence: "We went to the beach.", answer: "first" },
+            { sentence: "We played with a ball in the morning.", answer: "next" },
+            { sentence: "We had lunch under a tree.", answer: "then" },
+            { sentence: "We swam in the ocean in the afternoon.", answer: "finally" }
+        ];
+
+        const shuffledStory = [...story].sort(() => Math.random() - 0.5);
+
+        let hS = "";
+        shuffledStory.forEach((item, i) => {
+            hS += `<p>${item.sentence}<br><input id="s${i}" data-ans="${item.answer}" placeholder="First / Next / Then / Finally" autocomplete="off" spellcheck="false"></p>`;
+        });
+        document.getElementById("seqDiv").innerHTML = hS;
+
+        function checkSequencing() {
+            let ok = true;
+            document.querySelectorAll('#seqDiv input').forEach(input => {
+                const userAnswer = normalizeText(input.value);
+                const correctAnswer = normalizeText(input.dataset.ans);
+
+                if (userAnswer === correctAnswer) {
+                    input.className = 'correct';
+                } else {
+                    input.className = 'wrong';
+                    ok = false;
+                }
+            });
+        }
+
+        // Activity 3 & 4
+        function loadImages(items, folder, divId) {
+            items.sort(() => Math.random() - 0.5);
+            let h = "";
+ items.forEach((item, i) => {
+
+    let answer = item.replace('_', ' ');
+
+    if (item === "play_soccer") answer = "play soccer";
+    if (item === "reading_books") answer = "reading books";
+
+    h += `<div>
+            <img src="${folder}/${item}.png"><br>
+            <input id="${folder}${i}"
+                   data-ans="${answer}"
+                   autocomplete="off"
+                   spellcheck="false">
+          </div>`;
+});
+
+            document.getElementById(divId).innerHTML = h;
+        }
+
+        loadImages(
+            ["shirt","skirt","blouse","pants","shoes","shorts","scarf","socks","boots","dress","jacket"],
+            "clothes",
+            "clothDiv"
+        );
+
+        loadImages(
+["reading_books","running","skateboarding","play_soccer","kayaking","fishing"],
+"activities",
+"actDiv"
+);
+
+        function checkClothes() {
+            document.querySelectorAll('#clothDiv input').forEach(i => {
+                i.className = (i.value.toLowerCase().trim() === i.dataset.ans) ? 'correct' : 'wrong';
+            });
+        }
+function checkQuestions() {
+
+    const answers = document.querySelectorAll('#qDiv input');
+
+    // Question 1: Do you like to play soccer?
+    let q1 = answers[0].value.toLowerCase().trim();
+
+    if (
+        q1 === "yes, i do." ||
+        q1 === "yes i do" ||
+        q1 === "no, i don't." ||
+        q1 === "no, i don't" ||
+        q1 === "no i don't"
+    ) {
+        answers[0].className = "correct";
+    } else {
+        answers[0].className = "wrong";
+    }
+
+    // Question 2: Favorite indoor activity
+    let q2 = answers[1].value.toLowerCase().trim();
+
+    if (
+        q2 === "reading books" ||
+        q2 === "my favorite indoor activity is reading books"
+    ) {
+        answers[1].className = "correct";
+    } else {
+        answers[1].className = "wrong";
+    }
+
+    // Question 3: Favorite outdoor activity
+    let q3 = answers[2].value.toLowerCase().trim();
+
+    if (
+        q3 === "running" ||
+        q3 === "skateboarding" ||
+        q3 === "play soccer" ||
+        q3 === "kayaking" ||
+        q3 === "fishing" ||
+
+        q3 === "my favorite outdoor activity is running" ||
+        q3 === "my favorite outdoor activity is skateboarding" ||
+        q3 === "my favorite outdoor activity is play soccer" ||
+        q3 === "my favorite outdoor activity is kayaking" ||
+        q3 === "my favorite outdoor activity is fishing"
+    ) {
+        answers[2].className = "correct";
+    } else {
+        answers[2].className = "wrong";
+    }
+
+    // Question 4: Do you like to ride a bike?
+    let q4 = answers[3].value.toLowerCase().trim();
+
+    if (
+        q4 === "yes, i do." ||
+        q4 === "yes i do" ||
+        q4 === "no, i don't." ||
+        q4 === "no, i don't" ||
+        q4 === "no i don't"
+    ) {
+        answers[3].className = "correct";
+    } else {
+        answers[3].className = "wrong";
+    }
+}
+        function checkActivities() {
+            document.querySelectorAll('#actDiv input').forEach(i => {
+                i.className = (i.value.toLowerCase().trim() === i.dataset.ans) ? 'correct' : 'wrong';
+            });
+        }
+    </script>
+</body>
+</html>
